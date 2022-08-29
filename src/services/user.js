@@ -21,7 +21,6 @@ const login = async (email, password) => {
   } catch (error) {
     return { message: error.message };
   }
-
 };
 
 module.exports = {

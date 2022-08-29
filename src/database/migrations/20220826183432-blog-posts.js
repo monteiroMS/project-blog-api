@@ -34,8 +34,6 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
       },
-      createdAt: Sequelize.DATE,
-      updatedAt: Sequelize.DATE,
     });
   },
 

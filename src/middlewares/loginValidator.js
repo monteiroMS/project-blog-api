@@ -10,9 +10,7 @@ const schema = Joi.object({
 const loginValidator = (req, res, next) => {
   const result = schema.validate(req.body);
 
-  if (result.error) {
-    return res.status(400).json(MESSAGE);
-  }
+  if (result.error) return res.status(400).json(MESSAGE);
 
   next();
 };

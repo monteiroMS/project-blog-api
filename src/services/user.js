@@ -6,6 +6,10 @@ const MESSAGE_ERROR_500 = 'Internal server error';
 
 const { JWT_SECRET: secret } = process.env;
 
+const serialize = ({ id, displayName, email, image }) => (
+  { id, displayName, email, image }
+);
+
 const login = async (email, password) => {
   try {
     const user = await User.findOne({ where: { email } });
@@ -40,7 +44,17 @@ const createUser = async (newUser) => {
   }
 };
 
+const getAll = async () => {
+  try {
+    const users = await User.findAll();
+    return users.map(serialize);
+  } catch (error) {
+    return { message: MESSAGE_ERROR_500 };
+  }
+};
+
 module.exports = {
   login,
   createUser,
+  getAll,
 };

@@ -14,6 +14,17 @@ const login = async (req, res) => {
   return res.status(200).json({ token });
 };
 
+const createUser = async (req, res) => {
+  const token = await User.createUser(req.body);
+
+  if (token.message) {
+    return res.status(500).json({ message: token.message });
+  }
+
+  return res.status(201).json({ token });
+};
+
 module.exports = {
   login,
+  createUser,
 };

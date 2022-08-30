@@ -1,7 +1,8 @@
 const jwt = require('jsonwebtoken');
 const { User } = require('../database/models');
 
-const INVALID_FIELDS = 'Invalid fields';
+const MESSAGE_INVALID_FIELDS = 'Invalid fields';
+const MESSAGE_ERROR_500 = 'Internal server error';
 
 const { JWT_SECRET: secret } = process.env;
 
@@ -10,7 +11,7 @@ const login = async (email, password) => {
     const user = await User.findOne({ where: { email } });
 
     if (!user || user.password !== password) {
-      throw new Error(INVALID_FIELDS);
+      throw new Error(MESSAGE_INVALID_FIELDS);
     }
 
     const token = jwt.sign({ email: user.email }, secret, {
@@ -23,6 +24,23 @@ const login = async (email, password) => {
   }
 };
 
+const createUser = async (newUser) => {
+  try {
+    const user = await User.create(newUser);
+
+    if (!user) throw new Error(MESSAGE_ERROR_500);
+
+    const token = await login(user.email, user.password);
+
+    if (token.message) throw new Error(MESSAGE_ERROR_500);
+
+    return token;
+  } catch (error) {
+    return { message: error.message };
+  }
+};
+
 module.exports = {
   login,
+  createUser,
 };

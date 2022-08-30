@@ -7,6 +7,7 @@ const router = express.Router();
 
 router
   .post('/', createUserValidator, User.createUser)
-  .get('/', authenticator, User.getAll);
+  .get('/', authenticator, User.getAll)
+  .get('/:id', authenticator, User.getById);
 
 module.exports = router;

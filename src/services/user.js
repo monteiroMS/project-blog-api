@@ -3,6 +3,7 @@ const { User } = require('../database/models');
 
 const MESSAGE_INVALID_FIELDS = 'Invalid fields';
 const MESSAGE_ERROR_500 = 'Internal server error';
+const MESSAGE_USER_NOT_FOUND = 'User does not exist';
 
 const { JWT_SECRET: secret } = process.env;
 
@@ -53,8 +54,21 @@ const getAll = async () => {
   }
 };
 
+const getById = async (id) => {
+  try {
+    const user = await User.findByPk(id);
+
+    if (!user) throw new Error(MESSAGE_USER_NOT_FOUND);
+
+    return serialize(user);
+  } catch (error) {
+    return { message: error.message };
+  }
+};
+
 module.exports = {
   login,
   createUser,
   getAll,
+  getById,
 };

@@ -43,7 +43,7 @@ const getById = async (req, res) => {
 
   if (user.message) {
     return res.status(404).json({
-      message: user.message
+      message: user.message,
     });
   }
 

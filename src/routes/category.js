@@ -8,6 +8,7 @@ const router = express.Router();
 const CREATE_MIDDLEWARES = [authenticator, checkReqBody];
 
 router
-  .post('/', CREATE_MIDDLEWARES, Category.createCategory);
+  .post('/', CREATE_MIDDLEWARES, Category.createCategory)
+  .get('/', authenticator, Category.getAll);
 
 module.exports = router;

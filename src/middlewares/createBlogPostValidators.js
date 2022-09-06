@@ -2,7 +2,7 @@ const Joi = require('joi');
 const { Category } = require('../database/models');
 
 const MESSAGE_MISSING_FIELDS = 'Some required fields are missing';
-const MESSAGE_NOT_FOUND = '\"categoryIds\" not found';
+const MESSAGE_NOT_FOUND = '"categoryIds" not found';
 
 const schema = Joi.object({
   title: Joi.string().required(),

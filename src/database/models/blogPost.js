@@ -10,8 +10,17 @@ module.exports = (sequelize, DataTypes) => {
     title: DataTypes.STRING,
     content: DataTypes.STRING,
     userId: DataTypes.INTEGER,
-    published: DataTypes.DATE,
-    updated: DataTypes.DATE
+    published: {
+      allowNull: false,
+      type: 'TIMESTAMP',
+      defaultValue: DataTypes.NOW,
+    },
+    updated: {
+      allowNull: false,
+      type: 'TIMESTAMP',
+      defaultValue: DataTypes.NOW,
+      onUpdate: DataTypes.NOW,
+    },
   }, {
     timestamps: false,
     tablename: 'BlogPosts',

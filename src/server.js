@@ -1,9 +1,7 @@
 require('dotenv').config();
 const app = require('./api');
 const { errorMiddleware } = require('./middlewares/error');
-const login = require('./routes/login');
-const user = require('./routes/user');
-const category = require('./routes/category');
+const Routes = require('./routes');
 
 const port = process.env.API_PORT || 3000;
 
@@ -11,9 +9,10 @@ app.get('/', (_request, response) => {
   response.send();
 });
 
-app.use('/login', login);
-app.use('/user', user);
-app.use('/categories', category);
+app.use('/login', Routes.login);
+app.use('/user', Routes.user);
+app.use('/categories', Routes.category);
+app.use('/post', Routes.post);
 
 app.use(errorMiddleware);
 

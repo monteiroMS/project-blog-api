@@ -9,6 +9,7 @@ const router = express.Router();
 
 router
   .get('/', authenticator, BlogPost.getAll)
+  .get('/:id', authenticator, BlogPost.getById)
   .post('/', validators, BlogPost.createPost);
 
 module.exports = router;

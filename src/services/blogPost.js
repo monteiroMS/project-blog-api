@@ -4,6 +4,7 @@ const config = require('../database/config/config');
 const { User, Category } = require('../database/models');
 
 const MESSAGE_SERVER_ERROR = 'Internal Server Error';
+const MESSAGE_NOT_FOUND = 'Post does not exist';
 
 const sequelize = new Sequelize(config.development);
 
@@ -64,9 +65,34 @@ const getAll = async () => {
       return { ...serializeUser(post), categories };
     }));
 
-    console.log(posts);
-
     return posts; 
+  } catch (error) {
+    return { message: error.message };
+  }
+};
+
+const getById = async (id) => {
+  try {
+    const post = await BlogPost.findOne({
+      where: { id },
+      include: [{
+        model: User, as: 'user',
+        attributes: { exclude: ['password'] },
+      }],
+    });
+
+    if (!post) throw new Error(MESSAGE_NOT_FOUND);
+
+    const postCategory = await PostCategory.findAll({
+      where: { postId: post.id },
+    });
+
+    const categories = await Promise.all(postCategory.map(async ({ categoryId }) => {
+      const [categories] = await Category.findAll({ where: { id: categoryId } });
+      return categories;
+    }));
+
+    return { ...serializeUser(post), categories };
   } catch (error) {
     return { message: error.message };
   }
@@ -75,4 +101,5 @@ const getAll = async () => {
 module.exports = {
   createPost,
   getAll,
+  getById,
 };

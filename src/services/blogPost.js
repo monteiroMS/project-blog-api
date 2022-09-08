@@ -13,7 +13,7 @@ const serialize = ({ id, title, content, userId, published, updated }) => (
 );
 
 const serializeUser = (
-  { id, title, content, userId, published, updated, user }
+  { id, title, content, userId, published, updated, user },
 ) => (
   { id, title, content, userId, published, updated, user }
 );
@@ -44,27 +44,17 @@ const createPost = async (post, userId) => {
 const getAll = async () => {
   try {
     const result = await BlogPost.findAll({
-      include: [{
-        model: User, as: 'user',
-        attributes: { exclude: ['password'] },
-      }],
+      include: [{ model: User, as: 'user', attributes: { exclude: ['password'] } }],
     });
-
     if (!result) throw new Error(MESSAGE_SERVER_ERROR);
-
     const posts = await Promise.all(result.map(async (post) => {
-      const postCategory = await PostCategory.findAll({
-        where: { postId: post.id },
-      });
-
+      const postCategory = await PostCategory.findAll({ where: { postId: post.id } });
       const categories = await Promise.all(postCategory.map(async ({ categoryId }) => {
-        const [categories] = await Category.findAll({ where: { id: categoryId } });
-        return categories;
+        const [postCategories] = await Category.findAll({ where: { id: categoryId } });
+        return postCategories;
       }));
-
       return { ...serializeUser(post), categories };
     }));
-
     return posts; 
   } catch (error) {
     return { message: error.message };
@@ -75,23 +65,16 @@ const getById = async (id) => {
   try {
     const post = await BlogPost.findOne({
       where: { id },
-      include: [{
-        model: User, as: 'user',
-        attributes: { exclude: ['password'] },
-      }],
+      include: [{ model: User, as: 'user', attributes: { exclude: ['password'] } }],
     });
-
     if (!post) throw new Error(MESSAGE_NOT_FOUND);
-
     const postCategory = await PostCategory.findAll({
       where: { postId: post.id },
     });
-
     const categories = await Promise.all(postCategory.map(async ({ categoryId }) => {
-      const [categories] = await Category.findAll({ where: { id: categoryId } });
-      return categories;
+      const [postCategories] = await Category.findAll({ where: { id: categoryId } });
+      return postCategories;
     }));
-
     return { ...serializeUser(post), categories };
   } catch (error) {
     return { message: error.message };

@@ -1,11 +1,20 @@
 const Sequelize = require('sequelize');
 const { BlogPost, PostCategory } = require('../database/models');
 const config = require('../database/config/config');
+const { User, Category } = require('../database/models');
+
+const MESSAGE_SERVER_ERROR = 'Internal Server Error';
 
 const sequelize = new Sequelize(config.development);
 
 const serialize = ({ id, title, content, userId, published, updated }) => (
   { id, title, content, userId, published, updated }
+);
+
+const serializeUser = (
+  { id, title, content, userId, published, updated, user }
+) => (
+  { id, title, content, userId, published, updated, user }
 );
 
 const createPost = async (post, userId) => {
@@ -31,6 +40,39 @@ const createPost = async (post, userId) => {
   }
 };
 
+const getAll = async () => {
+  try {
+    const result = await BlogPost.findAll({
+      include: [{
+        model: User, as: 'user',
+        attributes: { exclude: ['password'] },
+      }],
+    });
+
+    if (!result) throw new Error(MESSAGE_SERVER_ERROR);
+
+    const posts = await Promise.all(result.map(async (post) => {
+      const postCategory = await PostCategory.findAll({
+        where: { postId: post.id },
+      });
+
+      const categories = await Promise.all(postCategory.map(async ({ categoryId }) => {
+        const [categories] = await Category.findAll({ where: { id: categoryId } });
+        return categories;
+      }));
+
+      return { ...serializeUser(post), categories };
+    }));
+
+    console.log(posts);
+
+    return posts; 
+  } catch (error) {
+    return { message: error.message };
+  }
+};
+
 module.exports = {
   createPost,
+  getAll,
 };

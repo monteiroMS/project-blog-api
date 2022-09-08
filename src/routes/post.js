@@ -8,6 +8,7 @@ const validators = [authenticator, ...createBlogPostValidators];
 const router = express.Router();
 
 router
+  .get('/', authenticator, BlogPost.getAll)
   .post('/', validators, BlogPost.createPost);
 
 module.exports = router;

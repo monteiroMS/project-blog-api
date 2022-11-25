@@ -34,8 +34,22 @@ const getById = async (req, res) => {
   return res.status(200).json(post);
 };
 
+const updateById = async (req, res) => {
+  const { id } = req.params;
+  const [updated] = await BlogPost.updateById(id, { ...req.body });
+
+  if (!updated) {
+    return res.status(500).json({ message: 'Internal Server Error' });
+  } 
+
+  const post = await BlogPost.getById(id);
+
+  return res.status(200).json(post);
+};
+
 module.exports = {
   createPost,
   getAll,
   getById,
+  updateById,
 };

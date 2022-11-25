@@ -19,7 +19,7 @@ const login = async (email, password) => {
       throw new Error(MESSAGE_INVALID_FIELDS);
     }
 
-    const token = jwt.sign({ email: user.email }, secret, {
+    const token = jwt.sign({ email: user.email, id: user.id }, secret, {
       expiresIn: '1d',
     });
   

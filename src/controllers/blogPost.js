@@ -47,9 +47,22 @@ const updateById = async (req, res) => {
   return res.status(200).json(post);
 };
 
+const deleteById = async (req, res) => {
+  const { id } = req.params;
+
+  const deleted = await BlogPost.deleteById(id);
+
+  if (!deleted) {
+    return res.status(404).json({ message: 'Post does not exist' });
+  }
+
+  return res.status(204).end();
+};
+
 module.exports = {
   createPost,
   getAll,
   getById,
   updateById,
+  deleteById,
 };

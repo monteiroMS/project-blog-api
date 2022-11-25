@@ -1,4 +1,7 @@
+const jwt = require('jsonwebtoken');
 const User = require('../services/user');
+
+const secret = process.env.JWT_SECRET;
 
 const login = async (req, res) => {
   const { email, password } = req.body;
@@ -50,9 +53,22 @@ const getById = async (req, res) => {
   return res.status(200).json(user);
 };
 
+const deleteMe = async (req, res) => {
+  const { authorization } = req.headers;
+  const { id } = jwt.verify(authorization, secret);
+  const deleted = await User.deleteById(id);
+
+  if (!deleted) {
+    return res.status(500).json({ message: 'Something went wrong' });
+  }
+
+  return res.status(204).end();
+};  
+
 module.exports = {
   login,
   createUser,
   getAll,
   getById,
+  deleteMe,
 };

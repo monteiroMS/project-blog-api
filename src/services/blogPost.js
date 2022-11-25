@@ -1,4 +1,5 @@
 const Sequelize = require('sequelize');
+const { Op } = require('sequelize');
 const { BlogPost, PostCategory } = require('../database/models');
 const config = require('../database/config/config');
 const { User, Category } = require('../database/models');
@@ -10,12 +11,6 @@ const sequelize = new Sequelize(config.development);
 
 const serialize = ({ id, title, content, userId, published, updated }) => (
   { id, title, content, userId, published, updated }
-);
-
-const serializeUser = (
-  { id, title, content, userId, published, updated, user },
-) => (
-  { id, title, content, userId, published, updated, user }
 );
 
 const createPost = async (post, userId) => {
@@ -44,18 +39,13 @@ const createPost = async (post, userId) => {
 const getAll = async () => {
   try {
     const result = await BlogPost.findAll({
-      include: [{ model: User, as: 'user', attributes: { exclude: ['password'] } }],
+      include: [
+        { model: User, as: 'user', attributes: { exclude: ['password'] } },
+        { model: Category, as: 'categories' },
+      ],
     });
     if (!result) throw new Error(MESSAGE_SERVER_ERROR);
-    const posts = await Promise.all(result.map(async (post) => {
-      const postCategory = await PostCategory.findAll({ where: { postId: post.id } });
-      const categories = await Promise.all(postCategory.map(async ({ categoryId }) => {
-        const [postCategories] = await Category.findAll({ where: { id: categoryId } });
-        return postCategories;
-      }));
-      return { ...serializeUser(post), categories };
-    }));
-    return posts; 
+    return result;
   } catch (error) {
     return { message: error.message };
   }
@@ -65,17 +55,13 @@ const getById = async (id) => {
   try {
     const post = await BlogPost.findOne({
       where: { id },
-      include: [{ model: User, as: 'user', attributes: { exclude: ['password'] } }],
+      include: [
+        { model: User, as: 'user', attributes: { exclude: ['password'] } },
+        { model: Category, as: 'categories' },
+      ],
     });
     if (!post) throw new Error(MESSAGE_NOT_FOUND);
-    const postCategory = await PostCategory.findAll({
-      where: { postId: post.id },
-    });
-    const categories = await Promise.all(postCategory.map(async ({ categoryId }) => {
-      const [postCategories] = await Category.findAll({ where: { id: categoryId } });
-      return postCategories;
-    }));
-    return { ...serializeUser(post), categories };
+    return post;
   } catch (error) {
     return { message: error.message };
   }
@@ -96,10 +82,27 @@ const deleteById = async (id) => {
   return deleted;
 };
 
+const getBySearchTerm = async (query) => {
+  const posts = await BlogPost.findAll({
+    where: {
+      [Op.or]: [
+        { title: { [Op.like]: `%${query}%` } },
+        { content: { [Op.like]: `%${query}%` } },
+      ],
+    },
+    include: [
+      { model: User, as: 'user', attributes: { exclude: ['password'] } },
+      { model: Category, as: 'categories' },
+    ],
+  });
+  return posts;
+};
+
 module.exports = {
   createPost,
   getAll,
   getById,
   updateById,
   deleteById,
+  getBySearchTerm,
 };

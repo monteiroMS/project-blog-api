@@ -12,6 +12,7 @@ const router = express.Router();
 
 router
   .get('/', authenticator, BlogPost.getAll)
+  .get('/search?', authenticator, BlogPost.getBySearchTerm)
   .get('/:id', authenticator, BlogPost.getById)
   .post('/', validators, BlogPost.createPost)
   .put('/:id', authenticator, updatePostValidators, BlogPost.updateById)
